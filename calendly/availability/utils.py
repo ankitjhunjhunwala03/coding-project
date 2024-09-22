@@ -7,13 +7,6 @@ from datetime import datetime, time, timedelta
 
 
 def merge_slots(slots):
-    """
-    Merges overlapping or adjacent time slots, considering that a day ends at 11:59 PM
-    and the next day starts at 12:00 AM.
-
-    :param slots: List of tuples (start_time, end_time) where times are datetime objects.
-    :return: Merged list of tuples (start_time, end_time)
-    """
     if not slots:
         return []
 
