@@ -15,12 +15,11 @@ class WeeklyAvailabilitySlot(models.Model):
 
 class SpecificDateAvailabilitySlot(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    date = models.DateField()
-    start_time = models.TimeField()
-    end_time = models.TimeField()
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField()
 
     def __str__(self):
-        return f"{self.user.username}: {self.date} from {self.start_time} to {self.end_time}"
+        return f"{self.user.username}: from {self.start_time} to {self.end_time}"
 
 
 class UnavailableSlot(models.Model):

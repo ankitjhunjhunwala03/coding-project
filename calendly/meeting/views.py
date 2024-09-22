@@ -17,9 +17,9 @@ class MeetingViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = self.queryset
-        if self.request.query_params.get('user'):
-            queryset = queryset.filter(
-                Q(user1=self.request.query_params['user']) | Q(user2=self.request.query_params['user']))
+        if self.request.query_params.get('users'):
+            users = self.request.query_params['users'].split(',')
+            queryset = queryset.filter(participants__in=users)
         if self.request.query_params.get('start_datetime'):
             queryset = queryset.filter(start_time__gte=self.request.query_params['start_datetime'])
         if self.request.query_params.get('end_datetime'):
@@ -27,12 +27,11 @@ class MeetingViewSet(viewsets.ModelViewSet):
         return queryset
 
     def create(self, request, *args, **kwargs):
-        user1 = User.objects.get(pk=request.data['user1'])
-        user2 = User.objects.get(pk=request.data['user2'])
+        participants = User.objects.filter(id__in=request.data['participants'])
         start_time = pytz.timezone('UTC').localize(datetime.strptime(request.data['start_time'], '%Y-%m-%dT%H:%M:%SZ'))
         end_time = pytz.timezone('UTC').localize(datetime.strptime(request.data['end_time'], '%Y-%m-%dT%H:%M:%SZ'))
 
-        if not can_schedule_meeting(user1, user2, start_time, end_time):
+        if not can_schedule_meeting(participants, start_time, end_time):
             return Response({'error': 'Unavailable Slot'})
 
         return super(MeetingViewSet, self).create(request, *args, **kwargs)

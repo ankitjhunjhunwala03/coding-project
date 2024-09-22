@@ -29,8 +29,7 @@ class AvailabilityViewSet(APIView):
 
 class OverlappingAvailabilityViewSet(APIView):
     def get(self, request, *args, **kwargs):
-        user1 = User.objects.get(pk=request.query_params.get('user_id1'))
-        user2 = User.objects.get(pk=request.query_params.get('user_id2'))
+        users = request.query_params.get('users').split(',')
 
         start_datetime_str = request.query_params.get('start_datetime')
         end_datetime_str = request.query_params.get('end_datetime')
@@ -38,12 +37,15 @@ class OverlappingAvailabilityViewSet(APIView):
         start_datetime = datetime.fromisoformat(start_datetime_str)
         end_datetime = datetime.fromisoformat(end_datetime_str)
 
-        available_slots1 = get_user_availability(user1, start_datetime, end_datetime)
-        available_slots2 = get_user_availability(user2, start_datetime, end_datetime)
+        available_slots = []
+        for user in users:
+            available_slots.append(get_user_availability(user, start_datetime, end_datetime))
 
-        available_slots = break_and_find_overlapping_slots(available_slots1, available_slots2)
+        overlapping_slots = available_slots[0]
+        for slot in  available_slots[1:]:
+            overlapping_slots = break_and_find_overlapping_slots(overlapping_slots, slot)
 
-        return Response({"available_slots": available_slots})
+        return Response({"available_slots": overlapping_slots})
 
 
 class WeeklyAvailabilityViewSet(viewsets.ModelViewSet):

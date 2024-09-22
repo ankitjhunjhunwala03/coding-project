@@ -58,16 +58,14 @@ def get_user_availability(user, start_datetime: datetime, end_datetime: datetime
     # Fetch specific slot availability
     specific_slots = SpecificDateAvailabilitySlot.objects.filter(
         user=user,
-        date__gte=start_datetime.date(),
-        date__lte=end_datetime.date()
+        start_time__gte=start_datetime.date(),
+        end_time__lte=end_datetime.date()
     )
 
     for slot in specific_slots:
-        slot_start = pytz.timezone('UTC').localize(datetime.combine(slot.date, slot.start_time))
-        slot_end = pytz.timezone('UTC').localize(datetime.combine(slot.date, slot.end_time))
 
-        if slot_start < end_datetime and slot_end > start_datetime:
-            available_slots.append((max(slot_start, start_datetime), min(slot_end, end_datetime)))
+        if slot.start_time < end_datetime and slot.end_time > start_datetime:
+            available_slots.append((max(slot.start_time, start_datetime), min(slot.end_time, end_datetime)))
 
     # Fetch unavailable slots and exclude from available times
     unavailable_slots = UnavailableSlot.objects.filter(
