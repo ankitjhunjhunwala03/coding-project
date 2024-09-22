@@ -19,3 +19,4 @@ Features:
 5. CRUD Meeting between multiple users
 6. GET user availability on dates
 7. GET multiple users availability overlap
+8. Schedule Recurring Meetings
