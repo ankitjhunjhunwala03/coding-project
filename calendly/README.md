@@ -14,8 +14,8 @@ Features:
 
 1. CRUD User
 2. CRUD Weekly Available Dates(From Monday to Sunday) Slots
-3. CRUD Specific Date Extra Availability Slots
-4. CRUD Unavailable Date Slots
-5. CRUD Meeting
+3. CRUD Extra Availability Slots
+4. CRUD Unavailable Slots
+5. CRUD Meeting between multiple users
 6. GET user availability on dates
-7. GET 2 users availability overlap
+7. GET multiple users availability overlap
