@@ -8,18 +8,30 @@ from .serializers import MeetingSerializer
 from user.models import User
 from rest_framework.response import Response
 from .utils import can_schedule_meeting
+from django.db.models import Q
 
 
 class MeetingViewSet(viewsets.ModelViewSet):
     queryset = Meeting.objects.all()
     serializer_class = MeetingSerializer
 
+    def get_queryset(self):
+        queryset = self.queryset
+        if self.request.query_params.get('user'):
+            queryset = queryset.filter(
+                Q(user1=self.request.query_params['user']) | Q(user2=self.request.query_params['user']))
+        if self.request.query_params.get('start_datetime'):
+            queryset = queryset.filter(start_time__gte=self.request.query_params['start_datetime'])
+        if self.request.query_params.get('end_datetime'):
+            queryset = queryset.filter(end_time__lte=self.request.query_params['end_datetime'])
+        return queryset
+
     def create(self, request, *args, **kwargs):
         user1 = User.objects.get(pk=request.data['user1'])
         user2 = User.objects.get(pk=request.data['user2'])
         start_time = pytz.timezone('UTC').localize(datetime.strptime(request.data['start_time'], '%Y-%m-%dT%H:%M:%SZ'))
         end_time = pytz.timezone('UTC').localize(datetime.strptime(request.data['end_time'], '%Y-%m-%dT%H:%M:%SZ'))
-        
+
         if not can_schedule_meeting(user1, user2, start_time, end_time):
             return Response({'error': 'Unavailable Slot'})
 
